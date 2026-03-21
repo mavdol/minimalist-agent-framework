@@ -1,0 +1,23 @@
+{
+    "name": "execute_code",
+    "description": "Execute Python code. Use this for any task: reading/writing files, data processing, HTTP requests, computations. Prefer this over asking for more tools.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "code": {
+                "type": "string",
+                "description": "The Python code to execute."
+            }
+        },
+        "required": ["code"]
+    },
+    "capsule": {
+        "compute": "MEDIUM",
+        "ram": "256MB",
+        "timeout": "30s",
+        "max_retries": 1,
+        "allowed_files": ["./"],
+        "allowed_hosts": ["*"],
+        "env_variables": []
+    }
+}
