@@ -1,16 +1,64 @@
 import ast
 import json
+import os
 from pathlib import Path
 
+import openai
 from capsule import run
 
 from lib.tool_registry import ToolRegistry
 
 
 class Runner:
-    def __init__(self, wasm_path: str | Path, registry: ToolRegistry):
+    def __init__(self, wasm_path: str | Path, registry: ToolRegistry, cache_dir: str | Path = ".cache"):
         self._wasm = str(wasm_path)
         self._registry = registry
+        self._impls_file = Path(cache_dir) / "tool_impls.json"
+        self._impls: dict[str, str] = self._load_impls()
+
+    def _load_impls(self) -> dict[str, str]:
+        if self._impls_file.exists():
+            return json.loads(self._impls_file.read_text())
+        return {}
+
+    def _save_impls(self) -> None:
+        self._impls_file.write_text(json.dumps(self._impls, indent=2))
+
+    def _get_impl(self, defn: dict) -> str:
+        name = defn["name"]
+        if name in self._impls:
+            return self._impls[name]
+
+        props = defn.get("parameters", {}).get("properties", {})
+        params_desc = "\n".join(
+            f"  - {p} ({meta.get('type', 'str')}): {meta.get('description', '')}"
+            for p, meta in props.items()
+        )
+        prompt = (
+            f"Write a Python snippet that implements: {defn['description']}\n"
+            f"Available variables (already in scope):\n{params_desc}\n\n"
+            "Rules:\n"
+            "- Use only Python stdlib\n"
+            "- The last expression must be a str (use join, str(), etc — never return a list or dict)\n"
+            "- Output ONLY the code, no def line, no markdown fences\n"
+        )
+        client = openai.OpenAI(base_url=os.getenv("OPENAI_BASE_URL") or None)
+        model = os.getenv("OPENAI_MODEL", "gpt-4o")
+        response = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0,
+        )
+        code = response.choices[0].message.content.strip()
+        if code.startswith("```"):
+            code = "\n".join(
+                line for line in code.splitlines()
+                if not line.startswith("```")
+            ).strip()
+
+        self._impls[name] = code
+        self._save_impls()
+        return code
 
     async def run(self, tool_name: str, tool_args: dict) -> tuple[str, int | None]:
         """
@@ -24,6 +72,10 @@ class Runner:
         defn = self._registry.get_definition(tool_name)
         param_order = list(defn["parameters"]["properties"].keys()) if defn else list(tool_args.keys())
         ordered_args = [tool_args[p] for p in param_order if p in tool_args]
+
+        if tool_name != "execute_code" and defn:
+            impl_code = self._get_impl(defn)
+            ordered_args = [impl_code, *ordered_args]
 
         raw = await run(
             file=self._wasm,

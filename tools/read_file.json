@@ -1,0 +1,26 @@
+{
+    "name": "read_file",
+    "description": "Read file",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "path": {
+                "type": "string",
+                "description": "The path to the file to read."
+            }
+        },
+        "required": ["path"]
+    },
+    "capsule": {
+        "compute": "MEDIUM",
+        "ram": "256MB",
+        "timeout": "10s",
+        "max_retries": 0,
+        "allowed_files": [{
+            "path": ".",
+            "mode": "read-only"
+        }],
+        "allowed_hosts": [],
+        "env_variables": []
+    }
+}

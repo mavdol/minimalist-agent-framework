@@ -16,7 +16,10 @@
         "ram": "256MB",
         "timeout": "30s",
         "max_retries": 1,
-        "allowed_files": ["."],
+        "allowed_files": [{
+            "path": ".",
+            "mode": "read-only"
+        }],
         "allowed_hosts": [],
         "env_variables": []
     }

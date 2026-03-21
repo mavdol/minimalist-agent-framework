@@ -1,0 +1,30 @@
+{
+    "name": "write_files",
+    "description": "Write content to a file.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "path": {
+                "type": "string",
+                "description": "The path to the file to write."
+            },
+            "content": {
+                "type": "string",
+                "description": "The content to write to the file."
+            }
+        },
+        "required": ["path", "content"]
+    },
+    "capsule": {
+        "compute": "MEDIUM",
+        "ram": "256MB",
+        "timeout": "30s",
+        "max_retries": 0,
+        "allowed_files": [{
+            "path": ".",
+            "mode": "read-write"
+        }],
+        "allowed_hosts": [],
+        "env_variables": []
+    }
+}

@@ -7,12 +7,12 @@ from pathlib import Path
 
 from lib.tool_registry import ToolRegistry
 
-_EXECUTE_CODE_BODY = textwrap.dedent("""\
+_EXECUTOR_BODY = textwrap.dedent("""\
     import ast, sys
     from io import StringIO
 
     tree = ast.parse(code)
-    _globals = {}
+    _globals = {params_dict}
 
     old_stdout = sys.stdout
     sys.stdout = StringIO()
@@ -118,21 +118,24 @@ class SandboxBuilder:
             task_kwargs.append(f'allowed_hosts={json.dumps(capsule["allowed_hosts"])}')
 
         props = defn.get("parameters", {}).get("properties", {})
-        required = defn.get("parameters", {}).get("required", [])
         sig_parts = []
         for param, meta in props.items():
             py_type = _json_type_to_py(meta.get("type", "str"))
             sig_parts.append(f"{param}: {py_type}")
 
-        sig = ", ".join(sig_parts)
+        if name == "execute_code":
+            sig = ", ".join(sig_parts)
+            params_dict = "{}"
+        else:
+            sig = "code: str" + (", " + ", ".join(sig_parts) if sig_parts else "")
+            params_dict = "{" + ", ".join(f'"{p}": {p}' for p in props) + "}"
+
+        body_lines = _EXECUTOR_BODY.replace("{params_dict}", params_dict).splitlines()
+
         decorator = f"@task({', '.join(task_kwargs)})"
         lines = [decorator, f"def {name}({sig}):"]
-
-        if name == "execute_code":
-            for body_line in _EXECUTE_CODE_BODY.splitlines():
-                lines.append(f"    {body_line}" if body_line else "")
-        else:
-            lines.append("    pass")
+        for body_line in body_lines:
+            lines.append(f"    {body_line}" if body_line else "")
 
         return lines
 
@@ -165,3 +168,5 @@ def _json_type_to_py(json_type: str) -> str:
     return {"string": "str", "integer": "int", "number": "float", "boolean": "bool"}.get(
         json_type, "str"
     )
+
+
