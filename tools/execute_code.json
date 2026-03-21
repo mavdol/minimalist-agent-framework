@@ -16,8 +16,8 @@
         "ram": "256MB",
         "timeout": "30s",
         "max_retries": 1,
-        "allowed_files": ["./"],
-        "allowed_hosts": ["*"],
+        "allowed_files": ["."],
+        "allowed_hosts": [],
         "env_variables": []
     }
 }
