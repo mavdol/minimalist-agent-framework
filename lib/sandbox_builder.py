@@ -2,11 +2,11 @@ import hashlib
 import json
 import subprocess
 import textwrap
+from collections.abc import Callable
 from pathlib import Path
 
 from lib.tool_registry import ToolRegistry
 
-# Hard-coded execution body for the execute_code tool (runs inside the sandbox)
 _EXECUTE_CODE_BODY = textwrap.dedent("""\
     import ast, sys
     from io import StringIO
@@ -45,14 +45,23 @@ class SandboxBuilder:
         self._sandbox_wasm = self._cache_dir / "capsule_sandbox.wasm"
         self._hash_file = self._cache_dir / "sandbox.hash"
 
-    def build(self) -> Path:
+    def build(self, on_step: Callable[[str], None] | None = None) -> Path:
         self._cache_dir.mkdir(exist_ok=True)
         current_hash = self._compute_hash()
 
-        if not self.is_cache_valid(current_hash):
+        if self.is_cache_valid(current_hash):
+            if on_step:
+                on_step("Sandboxed tools ready (cached)")
+        else:
+            if on_step:
+                on_step(f"Generating tools ({len(self._registry.get_all_definitions())} tools)…")
             self._generate_source()
+            if on_step:
+                on_step("Compiling to WebAssembly…")
             self._compile()
             self._hash_file.write_text(current_hash)
+            if on_step:
+                on_step("Sandboxed tools ready")
 
         return self._sandbox_wasm
 
@@ -90,10 +99,9 @@ class SandboxBuilder:
         capsule = defn.get("capsule", {})
         name = defn["name"]
 
-        # Build @task decorator kwargs
         task_kwargs = []
         task_name = "".join(w.capitalize() for i, w in enumerate(name.split("_")))
-        task_name = task_name[0].lower() + task_name[1:]  # camelCase
+        task_name = task_name[0].lower() + task_name[1:]
         task_kwargs.append(f'name="{task_name}"')
 
         if "compute" in capsule:
@@ -109,7 +117,6 @@ class SandboxBuilder:
         if "allowed_hosts" in capsule:
             task_kwargs.append(f'allowed_hosts={json.dumps(capsule["allowed_hosts"])}')
 
-        # Build function signature from parameters
         props = defn.get("parameters", {}).get("properties", {})
         required = defn.get("parameters", {}).get("required", [])
         sig_parts = []

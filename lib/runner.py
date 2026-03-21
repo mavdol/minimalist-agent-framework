@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from capsule import run
@@ -19,31 +20,36 @@ class Runner:
         """
         action = tool_name.upper()
 
-        # Build positional args in the order defined by the tool's parameters schema
         defn = self._registry.get_definition(tool_name)
         param_order = list(defn["parameters"]["properties"].keys()) if defn else list(tool_args.keys())
         ordered_args = [tool_args[p] for p in param_order if p in tool_args]
 
-        envelope = await run(
+        raw = await run(
             file=self._wasm,
             args=[action, *ordered_args],
         )
 
-        duration_ms: int | None = None
-        if isinstance(envelope, dict):
-            execution = envelope.get("execution", {})
-            duration_ms = execution.get("duration_ms")
+        if isinstance(raw, str):
+            try:
+                envelope = json.loads(raw)
+            except json.JSONDecodeError:
+                return raw, None
+        else:
+            try:
+                envelope = dict(raw)
+            except (TypeError, ValueError):
+                return str(raw), None
 
-            if envelope.get("success"):
-                result = envelope.get("result")
-                return (str(result) if result is not None else "(no output)"), duration_ms
-            else:
-                err = envelope.get("error") or {}
-                if isinstance(err, dict):
-                    msg = f"{err.get('error_type', 'Error')}: {err.get('message', 'unknown error')}"
-                else:
-                    msg = str(err)
-                return msg, duration_ms
+        execution = envelope.get("execution") or {}
+        duration_ms: int | None = execution.get("duration_ms")
 
-        # Fallback — capsule returned something unexpected
-        return str(envelope), duration_ms
+        if envelope.get("success"):
+            result = envelope.get("result")
+            return (str(result) if result is not None else "(no output)"), duration_ms
+
+        err = envelope.get("error") or {}
+        if isinstance(err, dict):
+            msg = f"{err.get('error_type', 'Error')}: {err.get('message', 'unknown error')}"
+        else:
+            msg = str(err)
+        return msg, duration_ms

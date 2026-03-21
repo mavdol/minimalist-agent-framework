@@ -47,11 +47,7 @@ class Agent:
 
                 if confirmed:
                     result, duration_ms = await self._runner.run(tool_name, tool_args)
-                    is_error = any(
-                        result.startswith(p)
-                        for p in ("Error:", "SyntaxError:", "RuntimeError:", "TypeError:")
-                    ) or "error_type" in result.lower()
-                    renderer.show_result(tool_name, result, duration_ms, success=not is_error)
+                    renderer.show_result(tool_name, result)
                     tool_result_content = result
                 else:
                     renderer.show_cancelled(tool_name)
@@ -72,7 +68,7 @@ class Agent:
         )
 
         text_buffer = ""
-        tool_calls: dict[int, dict] = {}  # index → call dict
+        tool_calls: dict[int, dict] = {}
         live, buf = renderer.start_stream()
 
         try:

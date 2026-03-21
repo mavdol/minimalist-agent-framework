@@ -15,10 +15,9 @@ from lib.tool_registry import ToolRegistry
 async def main() -> None:
     registry = ToolRegistry("./tools")
 
-    renderer.show_building()
     builder = SandboxBuilder(registry, cache_dir=".cache")
     try:
-        wasm_path = builder.build()
+        wasm_path = builder.build(on_step=renderer.build_step)
     except RuntimeError as e:
         renderer.show_error(str(e))
         sys.exit(1)

@@ -46,25 +46,22 @@ async def confirm_run() -> bool:
         return False
 
 
-def show_result(tool_name: str, result: str, duration_ms: int | None, success: bool) -> None:
-    icon = "[green]✓[/green]" if success else "[red]✗[/red]"
-    duration = f"  ({duration_ms}ms)" if duration_ms is not None else ""
-    # Trim long results for display
+def show_result(tool_name: str, result: str) -> None:
     display = result if len(result) <= 200 else result[:200] + "…"
-    console.print(f"  {icon} {tool_name}  →  {display}{duration}")
+    console.print(f"  [dim]{tool_name}[/dim]  →  {display}")
 
 
 def show_cancelled(tool_name: str) -> None:
-    console.print(f"  [dim]✗ {tool_name}  →  cancelled[/dim]")
+    console.print(f"  [dim]{tool_name}  →  cancelled[/dim]")
 
 
 def show_error(message: str) -> None:
     console.print(f"[red]Error:[/red] {message}")
 
 
-def show_building() -> None:
-    console.print("[dim]Building sandbox…[/dim]")
+def build_step(message: str) -> None:
+    console.print(f"  [dim]{message}[/dim]")
 
 
 def show_ready() -> None:
-    console.print("[dim]Sandbox ready. Type your message or 'exit' to quit.[/dim]\n")
+    console.print("[dim]Type your message or 'exit' to quit.[/dim]\n")
