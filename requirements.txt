@@ -1,0 +1,5 @@
+openai
+rich
+prompt_toolkit
+capsule-run
+python-dotenv
