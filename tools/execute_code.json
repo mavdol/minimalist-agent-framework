@@ -1,6 +1,6 @@
 {
     "name": "execute_code",
-    "description": "Execute Python code. Use this for any task: reading/writing files, data processing, HTTP requests, computations. Prefer this over asking for more tools.",
+    "description": "Execute Pure Python code. Use this for any task: reading/writing files, data processing, HTTP requests, computations. Prefer this over asking for more tools.",
     "parameters": {
         "type": "object",
         "properties": {

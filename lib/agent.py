@@ -47,7 +47,7 @@ class Agent:
 
                 if confirmed:
                     result, duration_ms = await self._runner.run(tool_name, tool_args)
-                    renderer.show_result(tool_name, result)
+                    renderer.show_result(tool_name, result, duration_ms)
                     tool_result_content = result
                 else:
                     renderer.show_cancelled(tool_name)

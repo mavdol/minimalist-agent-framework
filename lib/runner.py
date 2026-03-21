@@ -1,3 +1,4 @@
+import ast
 import json
 from pathlib import Path
 
@@ -31,25 +32,43 @@ class Runner:
 
         if isinstance(raw, str):
             try:
-                envelope = json.loads(raw)
+                raw = json.loads(raw)
             except json.JSONDecodeError:
-                return raw, None
-        else:
-            try:
-                envelope = dict(raw)
-            except (TypeError, ValueError):
-                return str(raw), None
+                try:
+                    raw = ast.literal_eval(raw)
+                except (ValueError, SyntaxError):
+                    return raw, None
 
-        execution = envelope.get("execution") or {}
-        duration_ms: int | None = execution.get("duration_ms")
+        success = _get(raw, "success")
+        execution = _get(raw, "execution") or {}
+        duration_ms: int | None = _get(execution, "duration_ms")
 
-        if envelope.get("success"):
-            result = envelope.get("result")
+        if success:
+            inner = _get(raw, "result")
+            if isinstance(inner, dict):
+                if not _get(inner, "success"):
+                    err = _get(inner, "error") or {}
+                    msg = err.get("message", "unknown error") if isinstance(err, dict) else str(err)
+                    return msg, duration_ms
+                result = _get(inner, "result")
+                inner_exec = _get(inner, "execution") or {}
+                duration_ms = _get(inner_exec, "duration_ms") or duration_ms
+            else:
+                result = inner
             return (str(result) if result is not None else "(no output)"), duration_ms
 
-        err = envelope.get("error") or {}
+        err = _get(raw, "error") or {}
         if isinstance(err, dict):
             msg = f"{err.get('error_type', 'Error')}: {err.get('message', 'unknown error')}"
+        elif hasattr(err, "error_type"):
+            msg = f"{err.error_type}: {err.message}"
         else:
-            msg = str(err)
+            msg = str(err) if err else "unknown error"
         return msg, duration_ms
+
+
+def _get(obj, key: str):
+    """Get a value from a dict or an attribute-based object."""
+    if isinstance(obj, dict):
+        return obj.get(key)
+    return getattr(obj, key, None)

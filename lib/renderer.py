@@ -46,9 +46,10 @@ async def confirm_run() -> bool:
         return False
 
 
-def show_result(tool_name: str, result: str) -> None:
+def show_result(tool_name: str, result: str, duration_ms: int | None = None) -> None:
     display = result if len(result) <= 200 else result[:200] + "…"
-    console.print(f"  [dim]{tool_name}[/dim]  →  {display}")
+    duration = f"  [dim]({duration_ms}ms)[/dim]" if duration_ms is not None else ""
+    console.print(f"  [dim]{tool_name}[/dim]  →  {display}{duration}")
 
 
 def show_cancelled(tool_name: str) -> None:
