@@ -16,7 +16,7 @@ A minimalist agent framework where tools are JSON definitions. Each tool runs in
 
 ```bash
 pip install -r requirements.txt
-python3 main.py
+python main.py
 ```
 
 Environment variables:
