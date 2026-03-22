@@ -1,12 +1,12 @@
 # Minimalist Agent Framework
 
-A minimalist agent framework where tools are JSON definitions. Each tool runs inside a WebAssembly sandbox.
+A minimalist agent framework where tools are JSON definitions. Each tool runs inside a WebAssembly sandbox Built with [Capsule](https://github.com/mavdol/capsule).
 
 ## How it works
 
 **Tool definitions** live as JSON files in `tools/`. Each one declares the tool's name, parameters, and sandbox constraints — no implementation required.
 
-**At startup**, `SandboxBuilder` reads all definitions and compiles them into a single `.wasm` binary via [Capsule](https://github.com/mavdol/capsule). The result is cached and only recompiled when a definition changes.
+**At startup**, `SandboxBuilder` reads all definitions and compiles them into a single `.wasm` binary. The result is cached and only recompiled when a definition changes.
 
 **At call time**, `Runner` looks up a cached Python implementation in `.cache/tool_impls.json`. If none exists, it asks the LLM to write one and saves it for next time.
 
@@ -64,5 +64,3 @@ Create a file in `tools/<name>.json`:
 | `read_file` | Reads a file from disk |
 | `write_files` | Writes content to a file |
 | `list_files` | Lists files in a directory |
-
-To learn more about how sandboxing works, see the [Capsule](https://github.com/mavdol/capsule) repository.
