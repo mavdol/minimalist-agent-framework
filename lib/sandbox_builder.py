@@ -8,9 +8,6 @@ from pathlib import Path
 from lib.tool_registry import ToolRegistry
 
 _EXECUTOR_BODY = textwrap.dedent("""\
-    import ast, sys
-    from io import StringIO
-
     tree = ast.parse(code)
     _globals = {params_dict}
 
