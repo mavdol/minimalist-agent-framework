@@ -11,7 +11,7 @@
         },
         "required": ["code"]
     },
-    "capsule": {
+    "sandbox": {
         "compute": "MEDIUM",
         "ram": "256MB",
         "timeout": "30s",

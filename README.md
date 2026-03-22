@@ -45,7 +45,7 @@ Create a file in `tools/<name>.json`:
         },
         "required": ["input"]
     },
-    "capsule": {
+    "sandbox": {
         "compute": "LOW",
         "ram": "64MB",
         "timeout": "10s",

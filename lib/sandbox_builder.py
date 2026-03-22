@@ -93,7 +93,7 @@ class SandboxBuilder:
         self._sandbox_py.write_text("\n".join(lines) + "\n")
 
     def _generate_task(self, defn: dict) -> list[str]:
-        capsule = defn.get("capsule", {})
+        capsule = defn.get("sandbox", {})
         name = defn["name"]
 
         task_kwargs = []

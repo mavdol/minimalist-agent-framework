@@ -11,7 +11,7 @@
         },
         "required": ["path"]
     },
-    "capsule": {
+    "sandbox": {
         "compute": "LOW",
         "ram": "64MB",
         "timeout": "10s",
