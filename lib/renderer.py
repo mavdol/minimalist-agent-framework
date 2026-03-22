@@ -5,9 +5,6 @@ from prompt_toolkit.history import InMemoryHistory
 from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
-from rich.panel import Panel
-from rich.syntax import Syntax
-from rich.text import Text
 
 console = Console()
 _session = PromptSession(history=InMemoryHistory())
@@ -33,9 +30,9 @@ def stop_stream(live: Live) -> None:
     live.stop()
 
 
-def show_tool_call(tool_name: str, code: str) -> None:
-    syntax = Syntax(code, "python", theme="monokai", word_wrap=True)
-    console.print(Panel(syntax, title=tool_name, border_style="dim"))
+def show_tool_call(tool_name: str, args: dict) -> None:
+    parts = "  ".join(f"[dim]{k}=[/dim]{repr(v)[:60]}" for k, v in args.items())
+    console.print(f"\n  [bold]⟩[/bold] [cyan]{tool_name}[/cyan]  {parts}")
 
 
 async def confirm_run() -> bool:

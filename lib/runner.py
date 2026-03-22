@@ -34,11 +34,14 @@ class Runner:
             f"  - {p} ({meta.get('type', 'str')}): {meta.get('description', '')}"
             for p, meta in props.items()
         )
+        hint = f"- {defn['hint']}\n" if "hint" in defn else ""
         prompt = (
             f"Write a Python snippet that implements: {defn['description']}\n"
             f"Available variables (already in scope):\n{params_desc}\n\n"
             "Rules:\n"
             "- Use only Python stdlib\n"
+            "- Do not use any external libraries\n"
+            f"{hint}"
             "- The last expression must be a str (use join, str(), etc — never return a list or dict)\n"
             "- Output ONLY the code, no def line, no markdown fences\n"
         )

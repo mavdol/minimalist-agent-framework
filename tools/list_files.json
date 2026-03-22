@@ -12,10 +12,10 @@
         "required": ["path"]
     },
     "capsule": {
-        "compute": "MEDIUM",
-        "ram": "256MB",
+        "compute": "LOW",
+        "ram": "64MB",
         "timeout": "10s",
-        "max_retries": 0,
+        "max_retries": 1,
         "allowed_files": [{
             "path": ".",
             "mode": "read-only"

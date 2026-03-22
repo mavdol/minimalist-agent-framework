@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 
 from openai import AsyncOpenAI
 
@@ -38,10 +39,7 @@ class Agent:
                 tool_name = call["function"]["name"]
                 tool_args = json.loads(call["function"]["arguments"] or "{}")
 
-                if tool_name == "execute_code":
-                    renderer.show_tool_call(tool_name, tool_args.get("code", ""))
-                else:
-                    renderer.show_tool_call(tool_name, json.dumps(tool_args, indent=2))
+                renderer.show_tool_call(tool_name, tool_args)
 
                 confirmed = await renderer.confirm_run()
 
@@ -52,6 +50,7 @@ class Agent:
                 else:
                     renderer.show_cancelled(tool_name)
                     tool_result_content = "Execution cancelled by user."
+                    sys.exit(1)
 
                 self._messages.append({
                     "role": "tool",
