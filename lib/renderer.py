@@ -30,8 +30,13 @@ def stop_stream(live: Live) -> None:
     live.stop()
 
 
+def _fmt_arg(v) -> str:
+    s = v if isinstance(v, str) else repr(v)
+    return (s[:60] + "…") if len(s) > 60 else s
+
+
 def show_tool_call(tool_name: str, args: dict) -> None:
-    parts = "  ".join(f"[dim]{k}=[/dim]{repr(v)[:60]}" for k, v in args.items())
+    parts = "  ".join(f"[dim]{k}=[/dim]{_fmt_arg(v)}" for k, v in args.items())
     console.print(f"\n  [bold]⟩[/bold] [cyan]{tool_name}[/cyan]  {parts}")
 
 
@@ -43,9 +48,13 @@ async def confirm_run() -> bool:
         return False
 
 
+def _fmt_duration(ms: int) -> str:
+    return f"{ms / 1000:.1f}s" if ms >= 1000 else f"{ms}ms"
+
+
 def show_result(tool_name: str, result: str, duration_ms: int | None = None) -> None:
     display = result if len(result) <= 200 else result[:200] + "…"
-    duration = f"  [dim]({duration_ms}ms)[/dim]" if duration_ms is not None else ""
+    duration = f"  [dim]({_fmt_duration(duration_ms)})[/dim]" if duration_ms is not None else ""
     console.print(f"  [dim]{tool_name}[/dim]  →  {display}{duration}")
 
 
@@ -58,8 +67,9 @@ def show_error(message: str) -> None:
 
 
 def build_step(message: str) -> None:
-    console.print(f"  [dim]{message}[/dim]")
+    console.print(f"  [yellow]·[/yellow] [dim]{message}[/dim]")
 
 
 def show_ready() -> None:
+    console.rule(style="dim")
     console.print("[dim]Type your message or 'exit' to quit.[/dim]\n")
