@@ -1,0 +1,31 @@
+{
+    "name": "mv_files",
+    "description": "Move or rename files and directories.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "source": {
+                "type": "string",
+                "description": "The current path of the file or directory."
+            },
+            "destination": {
+                "type": "string",
+                "description": "The new path for the file or directory."
+            }
+        },
+        "required": ["source", "destination"]
+    },
+    "hint": "No shutil allowed, use os instead",
+    "sandbox": {
+        "compute": "LOW",
+        "ram": "64MB",
+        "timeout": "10s",
+        "max_retries": 1,
+        "allowed_files": [{
+            "path": ".",
+            "mode": "read-write"
+        }],
+        "allowed_hosts": [],
+        "env_variables": []
+    }
+}

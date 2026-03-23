@@ -64,3 +64,5 @@ Create a file in `tools/<name>.json`:
 | `read_file` | Reads a file from disk |
 | `write_files` | Writes content to a file |
 | `list_files` | Lists files in a directory |
+| `mv_files` | Moves or renames files and directories |
+| `create_folders` | Creates a folder |

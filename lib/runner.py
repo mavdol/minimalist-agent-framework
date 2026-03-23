@@ -32,18 +32,19 @@ class Runner:
         props = defn.get("parameters", {}).get("properties", {})
         params_desc = "\n".join(
             f"  - {p} ({meta.get('type', 'str')}): {meta.get('description', '')}"
+            + (" [JSON-encoded string — use json.loads() to parse]" if meta.get("type") in ("array", "object") else "")
             for p, meta in props.items()
         )
         hint = f"- {defn['hint']}\n" if "hint" in defn else ""
         prompt = (
-            f"Write a Python snippet that implements: {defn['description']}\n"
+            f"Write a Pure Python snippet that implements: {defn['description']}\n"
             f"Available variables (already in scope):\n{params_desc}\n\n"
             "Rules:\n"
-            "- Use only Python stdlib\n"
             "- Do not use any external libraries\n"
             f"{hint}"
-            "- The last expression must be a str (use join, str(), etc — never return a list or dict)\n"
-            "- Output ONLY the code, no def line, no markdown fences\n"
+            "- The last expression must be a str (use join, str(), etc)\n"
+            "- Never return a list or dict\n"
+            "- No external libraries or libraries using C extensions are allowed"
         )
         client = openai.OpenAI(base_url=os.getenv("OPENAI_BASE_URL") or None)
         model = os.getenv("OPENAI_MODEL", "gpt-4o")
@@ -80,9 +81,13 @@ class Runner:
             impl_code = self._get_impl(defn)
             ordered_args = [impl_code, *ordered_args]
 
+        str_args = [
+            arg if isinstance(arg, str) else json.dumps(arg)
+            for arg in ordered_args
+        ]
         raw = await run(
             file=self._wasm,
-            args=[action, *ordered_args],
+            args=[action, *str_args],
         )
 
         if isinstance(raw, str):

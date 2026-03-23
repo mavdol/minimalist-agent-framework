@@ -1,6 +1,6 @@
 {
     "name": "list_files",
-    "description": "List files in a directory.",
+    "description": "List files in a director (hidden files included).",
     "parameters": {
         "type": "object",
         "properties": {

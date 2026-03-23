@@ -1,0 +1,29 @@
+{
+    "name": "create_folders",
+    "description": "Create one or more new directories.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "paths": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "description": "The paths of the directories to create."
+            }
+        },
+        "required": ["paths"]
+    },
+    "sandbox": {
+        "compute": "LOW",
+        "ram": "64MB",
+        "timeout": "10s",
+        "max_retries": 1,
+        "allowed_files": [{
+            "path": ".",
+            "mode": "read-write"
+        }],
+        "allowed_hosts": [],
+        "env_variables": []
+    }
+}
