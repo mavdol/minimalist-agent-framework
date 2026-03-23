@@ -2,9 +2,11 @@
 
 A minimalist agent framework where tools are JSON definitions. Each tool runs inside a WebAssembly sandbox Built with [Capsule](https://github.com/mavdol/capsule).
 
+https://github.com/user-attachments/assets/d042e76e-214a-4291-9e9f-687ebaabff89
+
 ## How it works
 
-**Tool definitions** live as JSON files in `tools/`. Each one declares the tool's name, parameters, and sandbox constraints — no implementation required.
+**Tool definitions** live as JSON files in `tools/`. Each one declares the tool's name, parameters, and sandbox constraints.
 
 **At startup**, `SandboxBuilder` reads all definitions and compiles them into a single `.wasm` binary. The result is cached and only recompiled when a definition changes.
 
@@ -22,6 +24,7 @@ python main.py
 Environment variables:
 
 ```bash
+#.env
 OPENAI_API_KEY=
 OPENAI_BASE_URL=
 OPENAI_MODEL=
@@ -65,4 +68,4 @@ Create a file in `tools/<name>.json`:
 | `write_files` | Writes content to a file |
 | `list_files` | Lists files in a directory |
 | `mv_files` | Moves or renames files and directories |
-| `create_folders` | Creates a folder |
+| `create_folders` | Create one or more new directories. |
